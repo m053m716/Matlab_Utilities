@@ -68,16 +68,16 @@ if isempty(varargin)
    return; % No need to do anything.
 end
 
-if iscell(varargin{1})
-   varargin = varargin{1};
-end
-
 % Parse matchtype from inputs
 if isnumeric(varargin{1})
-   matchtype = 0;
+   matchtype = varargin{1};
    varargin(1) = [];
 else
    matchtype = 0;
+end
+
+if iscell(varargin{1})
+   varargin = varargin{1};
 end
 
 % Check that number of inputs makes sense

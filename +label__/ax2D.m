@@ -27,14 +27,14 @@ function ax = ax2D(ax,varargin)
 %           * 'XLabel.FontWeight' (XLABEL_WEIGHT)
 %           * 'XLim'            (XLIM)
 %           * 'XTick'           (XTICK)
-%           * 'XTickLabels'     (XTICKLABELS)
+%           * 'XTickLabels'     (XTICKLAB)
 %           * 'YColor'          (YCOLOR)
 %           * 'YLabel.FontName' (YLABEL_FONT)
 %           * 'YLabel.FontSize' (YLABEL_SIZE)
 %           * 'YLabel.FontWeight' (YLABEL_WEIGHT)
 %           * 'YLim'            (YLIM)
 %           * 'YTick'           (YTICK)
-%           * 'YTickLabels'     (YTICKLABELS)
+%           * 'YTickLabels'     (YTICKLAB)
 
 if nargin < 1
    ax = gca;

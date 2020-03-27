@@ -6,8 +6,8 @@ function varargout = UIParams(varargin)
 
 pars = struct;
 
-pars.Top = 0.175; % Offset from TOP border ([0 1])
-pars.Bot = 0.225; % Offset from BOTTOM border ([0 1])
+pars.Top = 0.15; % Offset from TOP border ([0 1])
+pars.Bot = 0.30; % Offset from BOTTOM border ([0 1])
 pars.Left = 0.225;  % Offset from LEFT border ([0 1])
 pars.Right = 0.15; % Offset from RIGHT border ([0 1])
 pars.HorizontalAlignment = 'left';
