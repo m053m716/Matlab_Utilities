@@ -1,16 +1,63 @@
-function ax = setEvenLimits(ax)
+function ax = setEvenLimits(ax,varargin)
 %SETEVENLIMITS  "Evens" the axes limits of axes in an array
 %
+%  -- Note: calls `label__.ax2D` on each `ax` --
+%
 %  ax = label__.setEvenLimits(ax);
+%  ax = label__.setEvenLimits(ax,pars);
+%  ax = label__.setEvenLimits(__,'NAME',value,...);
 %
 %  -- Input --
 %  ax : Array of axes handles
 %
+%  varargin : (Optional) Can assign `pars` directly, and/or modify 
+%					specific `pars` fields (from `defs.Axes2`) using
+%					<'NAME',value> input pair syntax.
+%
 %  -- Output --
-%  ax : Same as input, but should have equal xlim and ylim for each element
+%  ax  :  Input object array with updated properties and even limits
+%           
+%				## Affected `axes` Properties ##
+%
+%			(any can be modified using <'NAME',value> syntax)
+%
+%			-- property --       -- ('NAME') --
+%           * 'LineWidth'         (LINE_WIDTH)
+%           * 'Title.Color'       (TITLE_COLOR)
+%           * 'Title.FontName'    (TITLE_FONT)
+%           * 'Title.FontSize'    (TITLE_SIZE)
+%           * 'Title.FontWeight'  (TITLE_WEIGHT)
+%           * 'XColor'            (XCOLOR)
+%           * 'XDir' 		      (XDIR)
+%           * 'XLabel.FontName'   (XLABEL_FONT)
+%           * 'XLabel.FontSize'   (XLABEL_SIZE)
+%           * 'XLabel.FontWeight' (XLABEL_WEIGHT)
+%			* 'XLim' 		      (XLIM) -- sets initial bounds
+%		    * 'XScale' 			  (XSCALE)
+%           * 'XTick'             (XTICK)
+%           * 'XTickLabels'       (XTICKLAB)
+%           * 'YDir' 		      (YDIR)
+%           * 'YColor'            (YCOLOR)
+%           * 'YLabel.FontName'   (YLABEL_FONT)
+%           * 'YLabel.FontSize'   (YLABEL_SIZE)
+%           * 'YLabel.FontWeight' (YLABEL_WEIGHT)
+%			* 'YLim' 		      (YLIM) -- sets initial bounds
+%		    * 'YScale' 			  (YSCALE)
+%           * 'YTick'             (YTICK)
+%           * 'YTickLabels'       (YTICKLAB)
 
-yy = [inf, -inf];
-xx = [inf, -inf];
+pars = p__.parseParameters('Axes2',varargin{:});
+
+if strcmpi(pars.XLIM,'auto')
+   xx = [inf, -inf];
+else
+   xx = pars.XLIM;
+end
+if strcmpi(pars.YLIM,'auto')
+   yy = [inf, -inf];
+else
+   yy = pars.YLIM;
+end
 for i = 1:numel(ax)
    if ~strcmpi(ax(i).Type,'axes')
       continue;
@@ -24,12 +71,15 @@ end
 if any(isinf(xx))
    xx = [0 1];
 end
+
+pars.XLIM = xx;
+pars.YLIM = yy;
+
 for i = 1:numel(ax)
    if ~strcmpi(ax(i).Type,'axes')
       continue;
    end
-   ax(i).XLim = xx;
-   ax(i).YLim = yy;
+   ax(i) = label__.ax2D(ax(i),pars);
 end
 
 end

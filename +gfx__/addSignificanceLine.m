@@ -102,6 +102,7 @@ if isa(x,'matlab.graphics.axis.Axes')
             alpha = [];
          else
             alpha = varargin{1};
+            varargin(1) = [];
          end
    end
 else
@@ -135,6 +136,18 @@ end
 
 % Make sure `h0` and `y` are in "cell" format
 if ~iscell(y)
+   if ~iscell(h0)
+      if size(y,1)~=size(h0,1)
+         y = y.';
+         h0 = h0.';
+      end
+   else
+      if size(y,1)~=size(h0{1},1)
+         y = y.';
+         h0 = cellfun(@(C)C.',h0,'UniformOutput',false);
+      end
+   end
+   
    y = mat2cell(y,ones(1,numel(x)),size(y,2));
 end
 
@@ -198,9 +211,10 @@ if isempty(pars.UserData)
    pars.UserData = pars; % Store the parameters with object somehow
 end
 
+dispName = ['Significant (\alpha = ' num2str(alpha) ')'];
 h = line(ax,nan,nan,...
    'Color',pars.Color,...
-   'DisplayName',sprintf('Significant (\alpha = %g)',alpha),...
+   'DisplayName',dispName,...
    'LineWidth',pars.LineWidth,...
    'LineStyle',pars.LineStyle,...
    'LineJoin',pars.LineJoin,...
@@ -241,7 +255,10 @@ yTick = getNormalizedValue(ax.YLim,pars.NormalizedTickY);
 pVal = nan(size(x));
 
 N = numel(x);
-nRepeat = round(pars.RepeatedThresholdRatio*N);
+% Compute # of "repeated" segments needed to consider
+% significance. This number should always be at least
+% equal to 1, so set a lower bound on it using `max`.
+nRepeat = max(round(pars.RepeatedThresholdRatio*N),1);
 counter = 0;
 
 for ii = 1:N

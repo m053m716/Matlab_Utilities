@@ -7,7 +7,7 @@ function varargout = SignificanceLine(varargin)
 pars = struct;
 % "SignificanceLine"  specific properties:
 pars.TestFcn = @ttest2;
-pars.Alpha = 0.90;               % Default significance threshold
+pars.Alpha = 0.05;               % Default significance threshold
 pars.H0    = 0;                  % Default null-hypothesis is zero-mean
 pars.RepeatedThresholdRatio = 0.02; % Sets threshold for repeated tests; 
 %  e.g. If 300 sample points, with value of 0.02 this requires 6 
@@ -16,8 +16,11 @@ pars.RepeatedThresholdRatio = 0.02; % Sets threshold for repeated tests;
 %       positive test (to account for offset based on forward vs backward
 %       test). 
 %       Similarly, once threshold is crossed, requires the same number of
-%       consecutive "non-significant" tests to stop drawning the 
-%       "significance" line
+%       consecutive "non-significant" tests to stop drawing the 
+%       "significance" line.
+%		Note: the computed value is estimated using `round()` function to
+%			obtain an integer value for comparison. This value has a lower
+%			bound of 1 (in which case, no repeated samples are needed). 
 pars.PLineColorFactor = 0.75;    % Factor for "lightening" `p` line
 pars.PMinNormValue = 0;          % [0,1] range, normalized minimum value of `p` p-value line
 pars.NormalizedBracketY = 0.9;   % 0 -> Bottom of axes; 1 -> Top of axes

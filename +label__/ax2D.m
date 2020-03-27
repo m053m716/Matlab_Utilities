@@ -14,27 +14,35 @@ function ax = ax2D(ax,varargin)
 %
 %  -- output --
 %  ax  :  Input object with updated axes labels and limits
-%           Updates following properties of axes (any can be modified using
-%           <'NAME',value> syntax in input arguments)
-%           * 'LineWidth'       (LINE_WIDTH)
-%           * 'Title.Color'     (TITLE_COLOR)
-%           * 'Title.FontName'  (TITLE_FONT)
-%           * 'Title.FontSize'  (TITLE_SIZE)
-%           * 'Title.FontWeight' (TITLE_WEIGHT)
-%           * 'XColor'          (XCOLOR)
-%           * 'XLabel.FontName' (XLABEL_FONT)
-%           * 'XLabel.FontSize' (XLABEL_SIZE)
+%           
+%				## Affected `axes` Properties ##
+%
+%			(any can be modified using <'NAME',value> syntax)
+%
+%			-- property --       -- ('NAME') --
+%           * 'LineWidth'         (LINE_WIDTH)
+%           * 'Title.Color'       (TITLE_COLOR)
+%           * 'Title.FontName'    (TITLE_FONT)
+%           * 'Title.FontSize'    (TITLE_SIZE)
+%           * 'Title.FontWeight'  (TITLE_WEIGHT)
+%           * 'XColor'            (XCOLOR)
+%           * 'XDir' 		      (XDIR)
+%           * 'XLabel.FontName'   (XLABEL_FONT)
+%           * 'XLabel.FontSize'   (XLABEL_SIZE)
 %           * 'XLabel.FontWeight' (XLABEL_WEIGHT)
-%           * 'XLim'            (XLIM)
-%           * 'XTick'           (XTICK)
-%           * 'XTickLabels'     (XTICKLAB)
-%           * 'YColor'          (YCOLOR)
-%           * 'YLabel.FontName' (YLABEL_FONT)
-%           * 'YLabel.FontSize' (YLABEL_SIZE)
+%			* 'XLim' 		      (XLIM)
+%		    * 'XScale' 			  (XSCALE)
+%           * 'XTick'             (XTICK)
+%           * 'XTickLabels'       (XTICKLAB)
+%           * 'YDir' 		      (YDIR)
+%           * 'YColor'            (YCOLOR)
+%           * 'YLabel.FontName'   (YLABEL_FONT)
+%           * 'YLabel.FontSize'   (YLABEL_SIZE)
 %           * 'YLabel.FontWeight' (YLABEL_WEIGHT)
-%           * 'YLim'            (YLIM)
-%           * 'YTick'           (YTICK)
-%           * 'YTickLabels'     (YTICKLAB)
+%			* 'YLim' 		      (YLIM)
+%		    * 'YScale' 			  (YSCALE)
+%           * 'YTick'             (YTICK)
+%           * 'YTickLabels'       (YTICKLAB)
 
 if nargin < 1
    ax = gca;
@@ -54,6 +62,7 @@ ax.Title.FontSize = pars.TITLE_SIZE;
 ax.Title.FontWeight = pars.TITLE_WEIGHT;
 
 ax.XColor = pars.XCOLOR;
+ax.XDir = pars.XDIR;
 ax.XLabel.FontName = pars.XLABEL_FONT;
 ax.XLabel.FontSize = pars.XLABEL_SIZE;
 ax.XLabel.FontWeight = pars.XLABEL_WEIGHT;
@@ -66,8 +75,10 @@ end
 if ~strcmpi(pars.XTICKLAB,'auto')
    ax.XTickLabels = pars.XTICKLAB;
 end
+ax.XScale = pars.XSCALE;
 
 ax.YColor = pars.YCOLOR;
+ax.YDir = pars.YDIR;
 ax.YLabel.FontName = pars.YLABEL_FONT;
 ax.YLabel.FontSize = pars.YLABEL_SIZE;
 ax.YLabel.FontWeight = pars.YLABEL_WEIGHT;
@@ -80,6 +91,6 @@ end
 if ~strcmpi(pars.YTICKLAB,'auto')
    ax.YTickLabels = pars.YTICKLAB;
 end
-
+ax.YScale = pars.YSCALE;
 
 end

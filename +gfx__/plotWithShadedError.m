@@ -149,6 +149,6 @@ l = plot(gca,x,y,...
    'Parent',h);
 l.Annotation.LegendInformation.IconDisplayStyle = 'on';
 
-h.Annotation.LegendInformation.IconDisplayStyle = pars.IconDisplayStyle;
+h.Annotation.LegendInformation.IconDisplayStyle = pars.Annotation;
 
 end

@@ -12,13 +12,13 @@ pars.DisplayName = '';
 pars.Tag = '';
 pars.UserData = [];
 pars.FaceColor = [0.66 0.66 0.66];
-pars.FaceAlpha = 0.75;
+pars.FaceAlpha = 0.5;
 pars.EdgeColor = 'none';
 
 pars.Marker = 'none';
 pars.LineWidth = 1.25;
 pars.Color = 'k';
-pars.IconDisplayStyle = 'off';
+pars.Annotation = 'off';
 
 
 if nargin < 1
