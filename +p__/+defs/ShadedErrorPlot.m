@@ -6,20 +6,27 @@ function varargout = ShadedErrorPlot(varargin)
 
 pars = struct;
 
+% Numeric parameter defaults for error plot
 pars.StandardDeviations = 1;
+pars.H0 = []; % Can be set to do hypothesis test using addSignificanceLine
+pars.TestFcn = @ttest2; % e.g. @ttest2 | @signrank | @ranksum
 
+% Parameters for 'matlab.graphics.primitive.Line' properties
 pars.DisplayName = '';
 pars.Tag = '';
 pars.UserData = [];
 pars.FaceColor = [0.66 0.66 0.66];
-pars.FaceAlpha = 0.5;
 pars.EdgeColor = 'none';
-
 pars.Marker = 'none';
 pars.LineWidth = 1.25;
 pars.Color = 'k';
 pars.Annotation = 'off';
 
+% Parameters for 'matlab.graphics.primitive.Patch' properties
+pars.FaceAlpha = 0.5;
+
+% Also holds struct for SignificanceLine parameters
+pars.SignificanceLine = p__.defs.SignificanceLine();
 
 if nargin < 1
    varargout = {pars};   

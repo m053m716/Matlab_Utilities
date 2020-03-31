@@ -6,9 +6,10 @@ function varargout = SignificanceLine(varargin)
 
 pars = struct;
 % "SignificanceLine"  specific properties:
-pars.TestFcn = @ttest2;
+pars.TestFcn = @ttest2;          % Handle to function for comparison
 pars.Alpha = 0.05;               % Default significance threshold
 pars.H0    = 0;                  % Default null-hypothesis is zero-mean
+pars.FixedRepeatedThreshold = nan;  % If not NaN, overrides RepeatedThresholdRatio (below)
 pars.RepeatedThresholdRatio = 0.02; % Sets threshold for repeated tests; 
 %  e.g. If 300 sample points, with value of 0.02 this requires 6 
 %       consecutive "significant" tests, which would then draw the start of
@@ -25,6 +26,8 @@ pars.PLineColorFactor = 0.75;    % Factor for "lightening" `p` line
 pars.PMinNormValue = 0;          % [0,1] range, normalized minimum value of `p` p-value line
 pars.NormalizedBracketY = 0.9;   % 0 -> Bottom of axes; 1 -> Top of axes
 pars.NormalizedTickY = 0.875;    % 0 -> Bottom of axes; 1 -> Top of axes
+pars.FixedBracketY = nan;        % If specified, overrides 'Normalized'
+pars.FixedTickY = nan;           % If specified, overrides 'Normalized' 
 pars.MinDiffScale = 0.1;         % Scalar for min diff (for adding end of bracket)
 pars.PlotColor = 'auto';         % Color for plotting optional "data" line
 pars.PlotLineWidth = 1.25;

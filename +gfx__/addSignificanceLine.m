@@ -128,6 +128,16 @@ pars = p__.parseParameters('SignificanceLine',varargin{:});
 % Check input shape / presence
 if isrow(x)
    x = x.';
+   if iscell(y)
+      y = cellfun(@(C)C.',y,'UniformOutput',false);
+   else
+      y = y.';
+   end
+   if iscell(h0)
+      h0 = cellfun(@(C)C.',h0,'UniformOutput',false);
+   else
+      h0 = h0.';
+   end
 end
 
 if isempty(alpha)
@@ -194,7 +204,8 @@ if isempty(ax.Children) && pars.AddDataPlot
    yy = y(nSamples >= nAvg);
    xData = x(nSamples >= nAvg);
    yData = cell2mat(cellfun(@(C)C(1:nAvg),yy,'UniformOutput',false));
-   c = gfx__.plotWithShadedError(ax,xData,yData,...
+   c = gfx__.plotWithShadedError(...
+      ax,xData,yData,...
       'Color',pars.PlotColor,...
       'LineStyle',pars.PlotLineStyle,...
       'LineWidth',pars.PlotLineWidth);
@@ -211,7 +222,22 @@ if isempty(pars.UserData)
    pars.UserData = pars; % Store the parameters with object somehow
 end
 
-dispName = ['Significant (\alpha = ' num2str(alpha) ')'];
+N = numel(x);
+% Compute # of "repeated" segments needed to consider
+% significance. This number should always be at least
+% equal to 1, so set a lower bound on it using `max`.
+if isnan(pars.FixedRepeatedThreshold)
+   nRepeat = max(round(pars.RepeatedThresholdRatio*N),1);
+else
+   nRepeat = max(round(pars.FixedRepeatedThreshold),1);
+end
+
+if nRepeat > 1
+   dispName = sprintf('Significant \n\t(\\alpha = %g; n = %g)',...
+      alpha,nRepeat);
+else
+   dispName = sprintf('Significant \n\t(\\alpha = %g)',alpha);
+end
 h = line(ax,nan,nan,...
    'Color',pars.Color,...
    'DisplayName',dispName,...
@@ -250,19 +276,28 @@ if nargout > 2
    p.Annotation.LegendInformation.IconDisplayStyle = pars.Annotation;
 end
 
-yBrace = getNormalizedValue(ax.YLim,pars.NormalizedBracketY);
-yTick = getNormalizedValue(ax.YLim,pars.NormalizedTickY);
+if isnan(pars.FixedBracketY)
+   yBrace = getNormalizedValue(ax.YLim,pars.NormalizedBracketY);
+else
+   yBrace = pars.FixedBracketY;
+end
+if isnan(pars.FixedTickY)
+   yTick = getNormalizedValue(ax.YLim,pars.NormalizedTickY);
+else
+   yTick = pars.FixedTickY;
+end
 pVal = nan(size(x));
 
-N = numel(x);
-% Compute # of "repeated" segments needed to consider
-% significance. This number should always be at least
-% equal to 1, so set a lower bound on it using `max`.
-nRepeat = max(round(pars.RepeatedThresholdRatio*N),1);
 counter = 0;
 
 for ii = 1:N
-   [testResult,pVal(ii)] = pars.TestFcn(y{ii},h0{ii},'Alpha',alpha);
+   [testResult,pVal(ii)] = pars.TestFcn(...
+      y{ii}(~isnan(y{ii})),...
+      h0{ii}(~isnan(h0{ii})),...
+      'Alpha',alpha);
+   if isnan(testResult)
+      testResult = false;
+   end
    if testResult
       if ~isSignificant % If previous wasn't significant, add new "Start"
          counter = counter + 1;

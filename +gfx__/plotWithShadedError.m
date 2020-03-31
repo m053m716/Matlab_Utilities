@@ -1,4 +1,4 @@
-function h = plotWithShadedError(x,y,err,varargin)
+function [h,lsig] = plotWithShadedError(x,y,err,varargin)
 %PLOTWITHSHADEDERROR  Add shaded confidence bounds to data
 %
 %  h = gfx__.plotWithShadedError(x,data);
@@ -30,6 +30,11 @@ function h = plotWithShadedError(x,y,err,varargin)
 %  --> Any of the above syntaxes allow specification of parameters using
 %        <'Name',value> input argument pair syntax.
 %
+%  [h,lsig] = ...
+%  --> Additionally, return `lsig` object from `addSignificanceLine` (or
+%        empty object if input format did not include full dataset for
+%        comparison). Requires 'H0' parameter to be set.
+%
 %  -- OUTPUT --
 %     h  :  'matlab.graphics.primitive.Group' object
 %     --> Contains a line and a patch representing the "spread" along the 
@@ -46,7 +51,7 @@ if nargin < 2
 end
 
 if nargin == 2  % If only 2 inputs, depend on class of first arg
-   pars = p__.parseParameters('ShadedErrorPlot');
+   pars = getParameters('ShadedErrorPlot');
    if isa(x,'matlab.graphics.axis.Axes')
       ax = x;
       x = 1:size(y,2);
@@ -59,16 +64,16 @@ if nargin == 2  % If only 2 inputs, depend on class of first arg
 end
 
 if nargin == 3
-   pars = p__.parseParameters('ShadedErrorPlot');
+   pars = getParameters('ShadedErrorPlot');
    if isa(x,'matlab.graphics.axis.Axes')
       ax = x;
       x = y;
       data = err;
       dim = abs(find(size(x) == size(data))-2)+1;
       [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
-      
    else
       ax = gca;
+      data = [];
    end
 end
 
@@ -80,18 +85,20 @@ if nargin > 3
       x = y;
       if ischar(varargin{1})
          data = err;
-         pars = p__.parseParameters('ShadedErrorPlot',varargin{:});
+         pars = getParameters('ShadedErrorPlot',varargin{:});
          dim = abs(find(size(x) == size(data))-2)+1;
          [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
       else
          y = err;
          err = varargin{1};
          varargin(1) = [];
-         pars = p__.parseParameters('ShadedErrorPlot',varargin{:});
+         pars = getParameters('ShadedErrorPlot',varargin{:});
+         data = [];
       end
    else
-      pars = p__.parseParameters('ShadedErrorPlot',varargin{:});
+      pars = getParameters('ShadedErrorPlot',varargin{:});
       ax = gca;
+      data = [];
    end
 end
 % Create output matlab.graphics.primitive.Group object
@@ -148,7 +155,28 @@ l = plot(gca,x,y,...
    'DisplayName',pars.DisplayName,...
    'Parent',h);
 l.Annotation.LegendInformation.IconDisplayStyle = 'on';
-
 h.Annotation.LegendInformation.IconDisplayStyle = pars.Annotation;
+
+% Add significance testing line (if applicable; otherwise return [] lsig)
+if isempty(pars.H0) || isempty(data)
+   lsig = [];
+   return;
+end
+
+alpha = pars.SignificanceLine.Alpha;
+sigPars = pars.SignificanceLine;
+h0 = pars.H0;
+lsig = gfx__.addSignificanceLine(ax,x,data,h0,alpha,sigPars);
+
+% Helper methods
+   function pars = getParameters(fname,varargin)
+      %GETPARAMETERS  Helper function to parse parameters for this method
+      %
+      %  pars = getParameters(fname);
+      %  >> pars = getParameters('ShadedErrorPlot');
+      
+      pars = p__.parseParameters(fname,varargin{:});
+      pars.SignificanceLine.TestFcn = pars.TestFcn;
+   end
 
 end
