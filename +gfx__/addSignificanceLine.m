@@ -1,4 +1,4 @@
-function [h,c,p] = addSignificanceLine(x,y,h0,alpha,varargin)
+function [h,c,hMask,p] = addSignificanceLine(x,y,h0,alpha,varargin)
 %ADDSIGNIFICANCELINE  Add line to axes indicating significant epoch(s)
 %
 %  h = gfx__.addSignificanceLine(y);
@@ -49,6 +49,12 @@ function [h,c,p] = addSignificanceLine(x,y,h0,alpha,varargin)
 %        --> If 'auto', then uses current axes .ColorOrder and
 %            .ColorOrderIndex properties
 %
+%  [h,c,hMask,p] = gfx__.addSignificanceLine(__);
+%     --> Can request additional output options
+%     --> If at least 4 outputs are requested, then a line indicating the
+%           probability of rejecting null hypothesis at each sample is
+%           superimposed on `ax` as well
+%
 %  -- Inputs --
 %  x : Column vector of XData of sample points for comparison. 
 %  y : YData of sample points for comparison. Can be given as a cell array
@@ -61,6 +67,8 @@ function [h,c,p] = addSignificanceLine(x,y,h0,alpha,varargin)
 %  h : Handle to 'matlab.graphics.primitive.Line' object
 %  c : Handle to optionally plotted data line or else all (handles visible)
 %        children of current axes
+%  hMask : Mask vector that is zero for all samples and 1 where h is
+%           returned as true.
 %  p : (If requested) adds a "probability" line as well for p-value at each
 %        hypothesis test that is conducted to generate significance line.
 %
@@ -232,12 +240,19 @@ else
    nRepeat = max(round(pars.FixedRepeatedThreshold),1);
 end
 
-if nRepeat > 1
-   dispName = sprintf('Significant \n\t(\\alpha = %g; n = %g)',...
-      alpha,nRepeat);
+alpha_bonf = alpha / N;
+if alpha_bonf == alpha
+   asterisk = '';
 else
-   dispName = sprintf('Significant \n\t(\\alpha = %g)',alpha);
+   asterisk = '*';
 end
+if nRepeat > 1
+   dispName = sprintf('Significant \n\t(\\alpha = %g%s; n = %g)',...
+      alpha,asterisk,nRepeat);
+else
+   dispName = sprintf('Significant \n\t(\\alpha = %g%s)',alpha,asterisk);
+end
+yll = get(ax,'YLim');
 h = line(ax,nan,nan,...
    'Color',pars.Color,...
    'DisplayName',dispName,...
@@ -249,6 +264,7 @@ h = line(ax,nan,nan,...
    'MarkerSize',pars.MarkerSize,...
    'MarkerEdgeColor',pars.MarkerEdgeColor,...
    'MarkerFaceColor',pars.MarkerFaceColor,...
+   'MarkerIndices',pars.MarkerIndices,...
    'Visible',pars.Visible,...
    'SelectionHighlight',pars.SelectionHighlight,...
    'Clipping',pars.Clipping,...
@@ -264,41 +280,42 @@ h = line(ax,nan,nan,...
    );
 h.Annotation.LegendInformation.IconDisplayStyle = pars.Annotation;
 
-if nargout > 2
+[yBrace,yTick] = getLineYLocation(ax,pars);
+
+if nargout > 3
+   yyaxis(ax,'right'); % Move to "Right" scale
    p = copy(h);
-   p.Parent = ax;
-   p.Color = p.Color .* pars.PLineColorFactor;
-   if isempty(h.Tag)
-      p.DisplayName = 'P_{reject}';
+   pLineCol = min(p.Color + pars.PLineColorOff,[1,1,1]);
+   pDispName = sprintf('P[reject|\\alpha=%3g]',alpha);
+   if strcmpi(pars.MarkerEdgeColor,'auto')
+      pfc = [1 1 1];
    else
-      p.DisplayName = [h.Tag ': P_{reject}'];
+      pfc = pars.MarkerEdgeColor;
+   end
+   set(p,'Parent',ax,'Color',pLineCol,'LineStyle',':',...
+      'LineWidth',pars.LineWidth,'DisplayName',pDispName,...
+      'MarkerIndices',[],'MarkerEdgeColor',p.Color,'MarkerFaceColor',pfc);
+   if yBrace >= yTick
+      p.Marker = 'v';
+   else
+      p.Marker = '^';
    end
    p.Annotation.LegendInformation.IconDisplayStyle = pars.Annotation;
 end
 
-if isnan(pars.FixedBracketY)
-   yBrace = getNormalizedValue(ax.YLim,pars.NormalizedBracketY);
-else
-   yBrace = pars.FixedBracketY;
-end
-if isnan(pars.FixedTickY)
-   yTick = getNormalizedValue(ax.YLim,pars.NormalizedTickY);
-else
-   yTick = pars.FixedTickY;
-end
 pVal = nan(size(x));
-
+hMask = zeros(size(x));
 counter = 0;
 
 for ii = 1:N
-   [testResult,pVal(ii)] = pars.TestFcn(...
+   [hMask(ii),pVal(ii)] = pars.TestFcn(...
       y{ii}(~isnan(y{ii})),...
       h0{ii}(~isnan(h0{ii})),...
-      'Alpha',alpha);
-   if isnan(testResult)
-      testResult = false;
+      'Alpha',alpha_bonf);
+   if isnan(hMask(ii))
+      hMask(ii) = false;
    end
-   if testResult
+   if hMask(ii)
       if ~isSignificant % If previous wasn't significant, add new "Start"
          counter = counter + 1;
          if counter == nRepeat
@@ -312,7 +329,7 @@ for ii = 1:N
       end
    else
       if isSignificant % If previous was significant, add "Stop" indicator
-         h = addLineStopIndicator(h,x(ii-1)+d,yTick,yBrace);
+         h = addLineStopIndicator(h,x(ii-1),d,yTick,yBrace);
          isSignificant = false;  % "Past sample was not significant"
       else % Otherwise no line is currently being drawn
          counter = 0;
@@ -322,7 +339,7 @@ end
 
 % Add "end" demarcation (if still indicating significance)
 if isSignificant
-   h = addLineStopIndicator(h,x(end)+d,yTick,yBrace);
+   h = addLineStopIndicator(h,x(end),d,yTick,yBrace);
 end
 
 if isempty(pars.MarkerIndices)
@@ -331,9 +348,20 @@ end
 h.MarkerIndices = pars.MarkerIndices;
 
 % If it's requested, update the "p-value" line data
-if nargout > 2
-   p.XData = x;
-   p.YData = getNormalizedValue(ax.YLim,pVal,pars.PMinNormValue);
+if nargout > 3
+   mkIndex = find(hMask);
+   set(p,'XData',x.','YData',1-pVal.','MarkerIndices',mkIndex);
+   set(ax.YAxis(2),'Limits',[-2 1.25]);
+   set(ax,'YColor',p.Color,'YTick',[0 1]);
+   if (~isempty(mkIndex)) && ~pars.KeepBracketsAndProbLine
+      xd = h.XData;
+      yd = h.YData;
+      set(h,'XData',nan,'YData',nan,...
+         'UserData',struct('XData',xd,'YData',yd));
+      h.Annotation.LegendInformation.IconDisplayStyle = 'off';
+   end
+   yyaxis(ax,'left');
+   set(ax.YAxis(1),'Limits',yll);
 end
 
 % "Helper" functions to append data to significance lines
@@ -343,22 +371,44 @@ end
       %  h = addLineStopIndicator(h,xStart,xOffset,yTick,yBracket);
       %  --> h : 'matlab.graphics.primitive.Line' object
       
-      h.XData = [h.XData,   xStart,   xStart,  xStart+xOffset];
-      h.YData = [h.YData,    yTick,   yBrace,          yBrace];
+      % Subtracts offset indicator from xData to indicate that the test
+      % INCLUDES this sample.
+      xs = xStart - xOffset;
+      h.XData = [h.XData,       xs,       xs,  xStart];
+      h.YData = [h.YData,    yTick,   yBrace,  yBrace];
    end
 
-   function h = addLineStopIndicator(h,xEnd,yTick,yBrace)
+   function h = addLineStopIndicator(h,xEnd,xOffset,yTick,yBrace)
       %ADDLINESTOPINDICATOR  Add "stop" tick / bracket line delimiter data
       %
       %  h = addLineStopIndicator(h,xEnd,yTick,yBrace);
       %  --> h : 'matlab.graphics.primitive.Line' object
       
-      h.XData = [h.XData,   xEnd,  xEnd, nan];
+      xe = xEnd + xOffset;
+      h.XData = [h.XData,     xe,    xe, nan];
       h.YData = [h.YData, yBrace, yTick, nan];
       
    end
 
-   function y = getNormalizedValue(yLim,z,offset)
+   function [yBrace,yTick] = getLineYLocation(ax,pars)
+      %GETLINEYLOCATION  Returns `Y` location of the "brace" and "tick"
+      %
+      %  [yBrace,yTick] = getLineYLocation(ax,pars);
+      
+      if isnan(pars.FixedBracketY)
+         yBrace = getNormalizedValue(ax.YLim,pars.NormalizedBracketY);
+      else
+         yBrace = pars.FixedBracketY;
+      end
+      if isnan(pars.FixedTickY)
+         yTick = getNormalizedValue(ax.YLim,pars.NormalizedTickY);
+      else
+         yTick = pars.FixedTickY;
+      end
+
+   end
+
+   function y = getNormalizedValue(yLim,z)
       %GETNORMALIZEDVALUE  Return `data` y- value from normalized [0,1] val
       %
       %  y = getNormalizedValue(yLim,z);
@@ -368,9 +418,6 @@ end
       %  y = getNormalizedValue(yLim,z,offset);
       %  --> Introduce arbitrary "floor" offset
       
-      if nargin < 3
-         offset = yLim(1);
-      end
-      y = z .* (yLim(2) - offset) + offset;
+      y = (1-z) .* (yLim(2) - yLim(1)) + yLim(1);
    end
 end

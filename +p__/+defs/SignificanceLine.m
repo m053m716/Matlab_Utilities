@@ -22,8 +22,9 @@ pars.RepeatedThresholdRatio = 0.02; % Sets threshold for repeated tests;
 %		Note: the computed value is estimated using `round()` function to
 %			obtain an integer value for comparison. This value has a lower
 %			bound of 1 (in which case, no repeated samples are needed). 
-pars.PLineColorFactor = 0.75;    % Factor for "lightening" `p` line
-pars.PMinNormValue = 0;          % [0,1] range, normalized minimum value of `p` p-value line
+pars.PLineColorOff = [0.20 0.20 0.20];    % Factor for "lightening" `p` line
+pars.KeepBracketsAndProbLine = false; % By default, if "probability" line (4th output) is requested, hide brackets
+pars.ProbLineWidth = 1.5;
 pars.NormalizedBracketY = 0.9;   % 0 -> Bottom of axes; 1 -> Top of axes
 pars.NormalizedTickY = 0.875;    % 0 -> Bottom of axes; 1 -> Top of axes
 pars.FixedBracketY = nan;        % If specified, overrides 'Normalized'
