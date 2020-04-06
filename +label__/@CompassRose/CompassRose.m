@@ -1,59 +1,113 @@
 classdef CompassRose < matlab.mixin.SetGet & matlab.mixin.Copyable
    %COMPASSROSE Creates a compass rose on an axes to give scale bars
    %
-   %  h = CompassRose;
+   %  h = label__.CompassRose;
    %  --> Places CompassRose object handle (`h`) in current axes
    %
-   %  h = CompassRose(ax);
+   %  h = label__.CompassRose(ax);
    %  --> Places CompassRose object handle (`h`) in axes `ax`
    %
-   %  h = CompassRose(ax,x,y,z);
+   %  h = label__.CompassRose(ax,x,y,z);
    %  --> Creates lines from the origin in the specified dimensions
    %        indicating the scale of each dimension.
    %  --> If an element is a 2-element vector, then it demarcates the start
    %        and stop coordinate of the Compass in that dimension (instead
    %        of assuming rose should be at the origin).
    %
-   %  h = CompassRose(___,'Name',value,...);
+   %  h = label__.CompassRose(___,'Name',value,...);
    %  --> Set line properties using 'Name',value syntax
+   %
+   %  ## COMPASSROSE Properties ##
+   %     Color - char ('k' (def), 'r', etc.) or [1 x 3] double in range 0-1
+   %        Defines the color of the label text
+   %
+   %     FontName - Name of label text font (default: 'Arial')
+   %
+   %     FontSize - Defines size of label text (default: 14; units: points)
+   %
+   %     FontWeight - Defines FontWeight property of label text
+   %
+   %     LineProperties - Cell array of <'Name',value> pairs for lines
+   %        The cell array should be set so that consecutively-indexed
+   %        elements always follow the <'Name',value> convention.
+   %        e.g. {'LineStyle',10,'LineWidth',2,...}
+   %
+   %     XlabelOffsetFactor - [default: 1.15]; offset multiplier for X
+   %
+   %     XUnit - [char; default: '']; Adds a "unit" to X-line text label
+   %
+   %     YlabelOffsetFactor - [default: 1.15]; offset multiplier for Y
+   %
+   %     YUnit - [char; default: '']; Adds a "unit" to Y-line text label
+   %
+   %     ZlabelOffsetFactor - [default: 1.15]; offset multiplier for Z
+   %
+   %     ZUnit - [char; default: '']; Adds a "unit" to Z-line text label
+   %
+   %     Parent - [matlab.graphics.axis.Axes; default: current axes]
+   %        Sets the "parent" Axes of the CompassRose object
+   %     
+   %     x - Default: [0,0]; can be given as a scalar or two-element vector
+   %        Sets the x-coordinates of the CompassRose object. The
+   %        difference between x(1,1) and x(1,2) gives the x-scale length.
+   %        If given as a scalar, then initially the origin is assumed to
+   %        be at [0,0]; however, if the origin has already been set, then
+   %        a scalar value only updates the length of that axes, not its
+   %        location. Setting this property also updates the corresponding
+   %        label.
+   %
+   %     y - Default: [0,0]; can be given as a scalar or two-element vector
+   %        Sets the y-coordinates of the CompassRose object. The
+   %        difference between y(1,1) and y(1,2) gives the y-scale length.
+   %        If given as a scalar, then initially the origin is assumed to
+   %        be at [0,0]; however, if the origin has already been set, then
+   %        a scalar value only updates the length of that axes, not its
+   %        location. Setting this property also updates the corresponding
+   %        label.
+   %
+   %     z - Default: [0,0]; can be given as a scalar or two-element vector
+   %        Sets the z-coordinates of the CompassRose object. The
+   %        difference between z(1,1) and z(1,2) gives the z-scale length.
+   %        If given as a scalar, then initially the origin is assumed to
+   %        be at [0,0]; however, if the origin has already been set, then
+   %        a scalar value only updates the length of that axes, not its
+   %        location. Setting this property also updates the corresponding
+   %        label.
    
    properties(Dependent) % Parsed from objects
-      Color          
-      FontName       char = 'Arial'
-      FontSize       double = 14
-      FontWeight     char = 'normal'
-      LineProperties       cell
-      XLabelOffsetFactor   (1,1) double = 1.15
-      XUnit                      char = ''
-      YLabelOffsetFactor   (1,1) double = 1.15
-      YUnit                      char = ''
-      ZLabelOffsetFactor   (1,1) double = 1.15
-      ZUnit                      char = ''
-      Parent               matlab.graphics.axis.Axes
-      x                    double
-      xlabel   
-      y                    double
-      ylabel
-      z                    double
-      zlabel
+      Color % char ('k' (def), 'r', etc.) or [1 x 3] double in range 0-1        
+      FontName                   char % Name of label text font (default: 'Arial')
+      FontSize                   double % Defines size of label text (default: 14; units: points)
+      FontWeight                 char % Defines FontWeight property of label text
+      LineProperties             cell % Cell array of <'Name',value> pairs for line properties
+      XLabelOffsetFactor   (1,1) double % [default: 1.15]; offset multiplier for X
+      XUnit                      char % [char; default: '']; Adds a "unit" to X-line text label
+      YLabelOffsetFactor   (1,1) double % [default: 1.15]; offset multiplier for Y
+      YUnit                      char % [char; default: '']; Adds a "unit" to Y-line text label
+      ZLabelOffsetFactor   (1,1) double % [default: 1.15]; offset multiplier for Z
+      ZUnit                      char % [char; default: '']; Adds a "unit" to Z-line text label
+      Parent                     matlab.graphics.axis.Axes % Sets the "parent" Axes of the CompassRose object
+      x                          double % [0,0]; can be given as a scalar or two-element vector
+      y                          double % [0,0]; can be given as a scalar or two-element vector
+      z                          double % [0,0]; can be given as a scalar or two-element vector
    end
    
-   properties(Access=protected)
-      Color_                 = 'k';
-      FontName_         char = 'Arial'
-      FontSize_         double = 14
-      FontWeight_       char = 'normal'   
-      LineProperties_   cell = {'Color','k','LineWidth',1.25,'LineStyle','-','PickableParts','none'}
+   properties(Access=private)
+      Color_                           = 'k'; % Can be char or numeric
+      FontName_                  char = 'Arial'
+      FontSize_                  double = 14
+      FontWeight_                char = 'normal'   
+      LineProperties_            cell = {'Color','k','LineWidth',1.25,'LineStyle','-','PickableParts','none'}
       XLabelOffsetFactor_  (1,1) double = 1.15
       XUnit_                     char = ''
       YLabelOffsetFactor_  (1,1) double = 1.15
       YUnit_                     char = ''
       ZLabelOffsetFactor_  (1,1) double = 1.15
       ZUnit_                     char = ''
-      ax_         matlab.graphics.axis.Axes
-      hg_         matlab.graphics.primitive.Group
-      scalebar_   matlab.graphics.primitive.Line
-      label_      matlab.graphics.primitive.Text
+      ax_                        matlab.graphics.axis.Axes
+      hg_                        matlab.graphics.primitive.Group
+      scalebar_                  matlab.graphics.primitive.Line
+      label_                     matlab.graphics.primitive.Text
    end
    
    methods(Access=public) % Constructor
