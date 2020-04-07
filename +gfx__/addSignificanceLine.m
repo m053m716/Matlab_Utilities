@@ -305,7 +305,6 @@ end
 
 pVal = nan(size(x));
 hMask = zeros(size(x));
-counter = 0;
 
 for ii = 1:N
    [hMask(ii),pVal(ii)] = pars.TestFcn(...
@@ -317,22 +316,14 @@ for ii = 1:N
    end
    if hMask(ii)
       if ~isSignificant % If previous wasn't significant, add new "Start"
-         counter = counter + 1;
-         if counter == nRepeat
-            h = addLineStartIndicator(h,x(ii-floor(nRepeat/2)),...
-               d,yTick,yBrace);
-            isSignificant = true; % "Past sample was significant"   
-            counter = 0;
-         end
-      else % Otherwise was already significant (line being drawn)
-         counter = 0; % Reset the counter
+         h = addLineStartIndicator(h,x(ii-floor(nRepeat/2)),...
+            d,yTick,yBrace);
+         isSignificant = true; % "Past sample was significant"   
       end
    else
       if isSignificant % If previous was significant, add "Stop" indicator
          h = addLineStopIndicator(h,x(ii-1),d,yTick,yBrace);
          isSignificant = false;  % "Past sample was not significant"
-      else % Otherwise no line is currently being drawn
-         counter = 0;
       end
    end
 end
