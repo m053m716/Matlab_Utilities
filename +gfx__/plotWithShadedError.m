@@ -87,6 +87,10 @@ if nargin > 3
          data = err;
          pars = getParameters('ShadedErrorPlot',varargin{:});
          dim = abs(find(size(x) == size(data))-2)+1;
+         if isempty(dim)
+            data = data.';
+            dim = abs(find(size(x) == size(data))-2)+1;
+         end
          [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
       else
          y = err;
@@ -176,6 +180,13 @@ lsig = gfx__.addSignificanceLine(ax,x,data,h0,alpha,sigPars);
       %  >> pars = getParameters('ShadedErrorPlot');
       
       pars = p__.parseParameters(fname,varargin{:});
+      colFlag = ismember('Color',cellfun(@(C)char(C),varargin,'UniformOutput',false));
+      fcolFlag = ismember('FaceColor',cellfun(@(C)char(C),varargin,'UniformOutput',false));
+      if colFlag && ~fcolFlag
+         pars.FaceColor = pars.Color;
+      elseif fcolFlag && ~colFlag
+         pars.Color = pars.FaceColor;
+      end
       pars.SignificanceLine.TestFcn = pars.TestFcn;
    end
 
