@@ -341,9 +341,12 @@ h.MarkerIndices = pars.MarkerIndices;
 % If it's requested, update the "p-value" line data
 if nargout > 3
    mkIndex = find(hMask);
-   set(p,'XData',x.','YData',1-pVal.','MarkerIndices',mkIndex);
-   set(ax.YAxis(2),'Limits',[-2 1.25]);
-   set(ax,'YColor',p.Color,'YTick',[0 1]);
+   yScaled = 100-log(pVal.'.*100 + 100);
+   set(p,'XData',x.','YData',yScaled,'MarkerIndices',mkIndex);
+   set(ax,'YColor',p.Color);
+   set(ax.YAxis(2),'Limits',[92 96],...
+      'TickValues',[100-log(200) 100-log(100)],'TickLabel',{'0','1'},...
+      'FontName','Arial');
    if (~isempty(mkIndex)) && ~pars.KeepBracketsAndProbLine
       xd = h.XData;
       yd = h.YData;
