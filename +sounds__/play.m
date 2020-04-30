@@ -63,4 +63,8 @@ catch
    % do nothing
 end
 
+if nargout < 1
+   clear out; % Suppress any output in case forgot semicolon or something
+end
+
 end
