@@ -35,6 +35,7 @@ if numel(varargin) >= 1
    if isnumeric(varargin{1})
       nRow = nAxes;
       nCol = varargin{1};
+      nAxes = nRow * nCol;
       varargin(1) = [];
    else
       nRow = floor(sqrt(nAxes));
@@ -62,6 +63,10 @@ for iRow = 1:nRow
         'Position',pos,...
         'UserData',[iRow iCol]);
    end
+end
+ax = flipud(ax);
+if nAxes < numel(ax)
+   delete(ax((nAxes+1):end));
 end
 
 end
