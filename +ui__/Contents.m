@@ -1,4 +1,5 @@
-% +UI__
+% UI__ Package for generating graphics for user interfaces
+% MATLAB Version 9.7 (R2019b Update 5) 02-Jun-2020
 %
 % Files
 %   getGrid                  - Returns [x,y,w,h] graphics position vector for (nRow,nCol)

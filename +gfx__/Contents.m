@@ -1,4 +1,5 @@
-% +GFX__
+% GFX__ Package containing utilities for making nicer MATLAB graphics
+% MATLAB Version 9.7 (R2019b Update 5) 02-Jun-2020
 %
 % Files
 %   addSignificanceLine - Add line to axes indicating significant epoch(s)

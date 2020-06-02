@@ -1,4 +1,5 @@
-% +MATH__
+% MATH__ Package for basic math functions or matrix manipulations
+% MATLAB Version 9.7 (R2019b Update 5) 02-Jun-2020
 %
 % Files
 %   chunkVector2Matrix - "Chunks" a vector into a matrix format

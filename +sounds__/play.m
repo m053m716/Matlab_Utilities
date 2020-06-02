@@ -50,7 +50,11 @@ end
 soundName = fullfile(pname,[fname '.mat']);
 
 if ~exist(soundName,'file')
-   warning('No corresponding sound file (%s) in nigeLab/+sounds.',soundName);
+   warning(['SOUNDS:' mfilename ':MissingFile'],...
+      ['\n\t->\t<strong>[MISSING FILE]:</strong> ' ...
+       'No corresponding sound file (%s) in Utilities/+sounds__\n' ...
+       '\t\t\t(Make sure repo is initialized using Git-LFS)'],soundName);
+   
    return;
 end
 
