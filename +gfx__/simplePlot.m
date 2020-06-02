@@ -1,5 +1,5 @@
 function [h,x_red,y_red] = simplePlot(varargin)
-%GFX__.SIMPLEPLOT  Make a "simple" line plot using just (2D) vertex data
+%SIMPLEPLOT Make a "simple" line plot using just (2D) vertex data
 %
 %  h = nigeLab.utils.simplePlot(y);
 %  h = nigeLab.utils.simplePlot(x,y);

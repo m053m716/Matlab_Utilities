@@ -1,5 +1,5 @@
 function properties = getOpt(properties,varargin)
-%GETOPT - Process paired optional arguments as 'prop1',val1,'prop2',val2,...
+%GETOPT Process paired optional arguments as 'prop1',val1,'prop2',val2,...
 %
 %  properties = p__.getopt(properties,varargin) 
 %  >> properties = p__.getOpt(properties,'name1',val1,'name2',val2,...);

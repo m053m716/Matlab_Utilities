@@ -61,9 +61,22 @@ classdef cubehelix_selector < matlab.mixin.SetGetExactNames
       Figure_              % Figure handle to ui figure
    end
    
+   properties (GetAccess=private,SetAccess=immutable)
+      BeingCreated = true;
+   end
+   
    % Constructor
    methods (Access=public)
-      function obj = cubehelix_selector()
+      function obj = cubehelix_selector(varargin)
+         %CUBEHELIX_SELECTOR Construct CUBEHELIX_SELECTOR user interface
+         %
+         %  obj = ui__.cubehelix_selector();
+         %  obj =
+         %     ui__.cubehelix_selector(start,rots,sat,gamma,irange,domain);
+         %  obj = ui__.cubehelix_selector([start,rots,sat,gamma],...);
+         
+         update(obj,varargin{:});
+         
          pos = ui__.getSecondMonitorPosition(...
             'Normalized',[0.05,0.65,0.65,0.15]);
          obj.Figure_ = figure(...
@@ -434,10 +447,76 @@ classdef cubehelix_selector < matlab.mixin.SetGetExactNames
             'UserData',struct(...
                'prop','domain_',...
                'index',2));
+            
+         obj.BeingCreated = false;
       end
       
       function export(obj)
+         %EXPORT Export colormap to base workspace and copy to clipboard
+         %
+         %  export(obj);
+         %  -> Exports the variable `cm` to base workspace, which contains
+         %     currently-displayed colormap matrix.
+         %  -> Copies input arguments to gfx__.cubehelix() that recreate
+         %     this colormap to the system clipboard (also prints them in
+         %     Command Window).
+         
          assignin('base','cm',obj.cm);
+         expr = '[%3.2f %3.2f %3.2f %3.2f],[%3.2f %3.2f],[%3.2f %3.2f]';
+         str = sprintf(expr,obj.start_,obj.rots_,obj.sat_,obj.gamma_,...
+            obj.irange_,obj.domain_);
+         clipboard('copy',str);
+         fprintf(1,'Arguments copied to clipboard:\n');
+         fprintf(1,'\t->\t<strong>%s</strong>\n',str);
+         sounds__.play('pop',1.2,-10);
+      end
+      
+      function update(obj,start,rots,sat,gamma,irange,domain)
+         %UPDATE Update parameters using Command Window interface
+         %
+         %  update(obj,start,rots,sat,gamma,irange,domain);
+         %  update(obj,[start,rots,sat,gamma],irange,domain);
+         
+         if nargin > 1
+            if numel(start)==4
+               obj.start_ = start(1);
+               obj.rots_ = start(2);
+               obj.sat_ = start(3);
+               obj.gamma_ = start(4);
+            else
+               obj.start_ = start;
+            end
+         end
+         if nargin > 2
+            if numel(start) == 4
+               obj.irange_ = rots;
+            else
+               obj.rots_ = rots;
+            end
+         end
+         if nargin > 3
+            if numel(start) == 4
+               obj.domain_ = sat;
+            else
+               obj.sat_ = sat;
+            end
+         end
+         if nargin > 4
+            obj.gamma_ = gamma;
+         end
+         if nargin > 5
+            obj.irange_ = irange;
+         end
+         if nargin > 6
+            obj.domain_ = domain;
+         end
+         
+         if obj.BeingCreated
+            return;
+         else
+            % Otherwise, update associated graphics
+            refresh(obj);
+         end
       end
    end
    
@@ -592,6 +671,44 @@ classdef cubehelix_selector < matlab.mixin.SetGetExactNames
    
    % Hidden Public callback method
    methods (Hidden,Access=public)
+      function refresh(obj)
+         %REFRESH Refresh graphics to reflect parameter values
+         %
+         %  refresh(obj);
+         
+         % Update N
+         obj.N_Slider.Value = obj.N_;
+         obj.N_Edit.String = num2str(obj.N_);
+         
+         % Update Start
+         obj.Start_Slider.Value = obj.start_;
+         obj.Start_Edit.String = num2str(obj.start_);
+         
+         % Update Rots
+         obj.Rots_Slider.Value = obj.rots_;
+         obj.Rots_Edit.String = num2str(obj.rots_);
+         
+         % Update Sat
+         obj.Sat_Slider.Value = obj.sat_;
+         obj.Sat_Edit.String = num2str(obj.sat_);
+         
+         % Update Gamma
+         obj.Gamma_Slider.Value = obj.gamma_;
+         obj.Gamma_Edit.String = num2str(obj.gamma_);
+         
+         % Update IRange
+         obj.IRange_Edit_Low.String = num2str(obj.irange_(1));
+         obj.IRange_Edit_High.String = num2str(obj.irange_(2));
+         
+         % Update Domain
+         obj.Domain_Edit_Low.String = num2str(obj.domain_(1));
+         obj.Domain_Edit_High.String = num2str(obj.domain_(2));
+         
+         % And finally, update the colormap
+         args = getArgs(obj);
+         obj.cm = ui__.cubehelix_selector.new_cm_param(args{:});
+      end
+      
       function updateParam(obj,src)
          %UPDATEPARAM  Update parameter depending on source
          

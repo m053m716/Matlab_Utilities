@@ -8,12 +8,17 @@ function pos = getSecondMonitorPosition(Units,Normalized_Size)
 %  pos = ui__.getSecondMonitorPosition('Pixels');     
 %     --> Return `pos` in pixels
 %
+%  pos = ui__.getSecondMonitorPosition(Normalized_Size);
+%
 %  pos = ui__.getSecondMonitorPosition(__,Normalized_Size); 
 %     --> default Normalized_Size is [0.1 0.1 0.8 0.8] 
 %
 %  pos : [x y w h] position vector
 
 if nargin < 1
+   Units = 'Normalized';
+elseif isnumeric(Units)
+   Normalized_Size = Units;
    Units = 'Normalized';
 end
 
