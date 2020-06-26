@@ -1,7 +1,7 @@
 function [Zw, T] = whitenRows(Z)
 %WHITENROWS  Whitens rows of (d x n) matrix Z containing n samples
 %
-%  [Zw, T] = whitenRows(Z);
+%  [Zw, T] = math__.whitenRows(Z);
 %               
 % Inputs:       Z is an (d x n) matrix containing n samples of a
 %               d-dimensional random vector
