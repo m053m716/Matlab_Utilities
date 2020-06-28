@@ -34,6 +34,7 @@ pars.PlotColor = 'auto';         % Color for plotting optional "data" line
 pars.PlotLineWidth = 1.25;
 pars.PlotLineStyle = '-';
 pars.AddDataPlot = true;
+pars.DoMultipleComparisonsCorrection = true; % Set false to skip Bonferroni adjustment
 
 % matlab.graphics.primitive.Line properties:
 pars.Color = 'auto';

@@ -15,7 +15,7 @@ function [Zw, T] = whitenRows(Z)
 %               
 % Notes:        (a) Must have n >= d to fully whitenRows Z
 %               
-%               (b) Z = T \ Zcw
+%               (b) Z = (Zcw' / T')'
 %               
 % Author:       Brian Moore
 %               brimoor@umich.edu
@@ -25,10 +25,8 @@ function [Zw, T] = whitenRows(Z)
 % Update:       March   31, 2020 -- m053m716
 %               * Switch `cov` to `nancov` for matrices with missing data
 
-
 % Compute sample covariance
-Z(isnan(Z)) = missingValue;
-R = cov(Z');
+R = nancov(Z');
 
 % Whiten data
 [U, S, ~] = svd(R);

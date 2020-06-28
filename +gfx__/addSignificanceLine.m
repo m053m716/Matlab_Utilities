@@ -34,7 +34,7 @@ function [h,c,hMask,p] = addSignificanceLine(x,y,h0,alpha,varargin)
 %              --> Where p is true or false; y{ii} is data in sample ii,
 %                    and h0 is the null distribution for sample ii. alpha
 %                    sets the significance threshold  
-%     * 'Alpha' : default == 0.90 (significance level for `ttest2` or `ranksum`)
+%     * 'Alpha' : default == 0.05 (significance level for `ttest2` or `ranksum`)
 %     * 'H0'    : default == 0    (test against zero-mean)
 %     * 'NormalizedBracketY'  :  default = 0.9  (y-value of "bracket" part)
 %           [0 -> bottom of axes; 1 -> top of axes]
@@ -239,8 +239,11 @@ if isnan(pars.FixedRepeatedThreshold)
 else
    nRepeat = max(round(pars.FixedRepeatedThreshold),1);
 end
-
-alpha_bonf = alpha / N;
+if pars.DoMultipleComparisonsCorrection
+   alpha_bonf = alpha / N;
+else
+   alpha_bonf = alpha;
+end
 if alpha_bonf == alpha
    asterisk = '';
 else
