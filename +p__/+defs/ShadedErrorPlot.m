@@ -19,6 +19,7 @@ pars.FaceColor = [0.66 0.66 0.66];
 pars.EdgeColor = 'none';
 pars.Marker = 'none';
 pars.LineWidth = 1.25;
+pars.LineStyle = '-';
 pars.Color = 'k';
 pars.Annotation = 'off';
 

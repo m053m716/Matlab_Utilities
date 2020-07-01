@@ -319,7 +319,7 @@ for ii = 1:N
    end
    if hMask(ii)
       if ~isSignificant % If previous wasn't significant, add new "Start"
-         h = addLineStartIndicator(h,x(ii-floor(nRepeat/2)),...
+         h = addLineStartIndicator(h,x(max(ii-floor(nRepeat/2),1)),...
             d,yTick,yBrace);
          isSignificant = true; % "Past sample was significant"   
       end
