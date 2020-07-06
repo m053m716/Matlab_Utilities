@@ -2,17 +2,26 @@ function pos = addToSecondMonitor(Units,NORMSIZE)
 %ADDTOSECONDMONITOR  Return position coordinates for 2nd mon if possible
 %
 %  pos = gfx__.addToSecondMonitor();
+%  pos = gfx__.addToSecondMonitor(NORMSIZE);
 %  pos = gfx__.addToSecondMonitor('Normalized'); % Default
 %  pos = gfx__.addToSecondMonitor('Pixels');     % Return `pos` in pixels
 %  pos = gfx__.addToSecondMonitor(__,NORMSIZE); 
 %     --> default NORMSIZE is [0.1 0.1 0.8 0.8] (for pixels or norm)
 
-if nargin < 1
-   Units = 'Normalized';
-end
 
-if nargin < 2
-   NORMSIZE = [0.1 0.1 0.8 0.8];
+switch nargin
+   case 0
+      Units = 'Normalized';
+      NORMSIZE = [0.1 0.1 0.8 0.8];
+   case 1
+      if isnumeric(Units)
+         NORMSIZE = Units;
+         Units = 'Normalized';
+      else
+         NORMSIZE = [0.1 0.1 0.8 0.8];
+      end
+   otherwise % Do nothing
+      
 end
 
 rr = groot;
