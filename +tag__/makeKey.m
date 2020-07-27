@@ -41,17 +41,26 @@ end
 if isempty(preKey)
    return;
 end
-keyString = prependSignature(keyString,preKey);
+keyString = prependSignature(keyString,preKey,strcmpi(keyMode,'unique'));
 
 end
 
-function keyString = prependSignature(keyString,sig)
+function keyString = prependSignature(keyString,sig,uniqueStrings)
 %PREPENDSIGNATURE  Prepends the characters in sig to start of hashString
 %
-%  hashString = prependSignature(hashString,sig);
+%  keyString = prependSignature(keyString,sig);
+%  keyString = prependSignature(keyString,sig,uniqueStrings);
 %
-%  sig  -- char array to put on start (e.g. 'BB' for block)
-%  hashString  -- cell array of char vectors
+% Inputs
+%  keyString     - cell array of char vectors
+%  sig           - char array to put on start (e.g. 'BB' for block)
+%  uniqueStrings - (Optional) def: false; if true, does check to ensure
+%                    that elements of `keyString` are unique after the
+%                    "prepend" step.
+
+if nargin < 3
+   uniqueStrings = false;
+end
 
 if ~ischar(sig)
    error(['nigeLab:' mfilename ':invalidSignature'],...
@@ -59,8 +68,20 @@ if ~ischar(sig)
 end
 
 k = numel(sig);
+n = numel(keyString);
 keyString = cellfun(@(x) [sig x((k+1):end)],keyString,...
             'UniformOutput',false);
+if ~uniqueStrings
+   return;
+end
+keyString = unique(keyString);
+if numel(keyString) < n
+   keyString = GenUniqueRandomStrings(n);
+   warning('Non-unique keys after prepend step. Generating new key-set.');
+   keyString = prependSignature(keyString,sig,uniqueStrings);
+   return;
+end
+
 end
 
 % Function to use for example to get ANIMAL "ID" from BLOCK "CHILD"
