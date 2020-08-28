@@ -26,7 +26,7 @@ pars.LineWidth = 1.25;
 pars.LineStyle = '-';
 pars.Color = 'k';
 pars.Annotation = 'off';
-
+pars.UseMedian = false;
 % Parameters for 'matlab.graphics.primitive.Patch' properties
 pars.FaceAlpha = 0.5;
 

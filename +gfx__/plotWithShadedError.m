@@ -60,7 +60,11 @@ if nargin == 2  % If only 2 inputs, depend on class of first arg
    end
    data = y;
    dim = abs(find(size(x) == size(data))-2)+1;
-   [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
+   if pars.UseMedian
+      [~,~,~,y,err] = math__.mat2cb(data,dim,pars.StandardDeviations);
+   else
+      [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
+   end
 end
 
 if nargin == 3
@@ -70,7 +74,11 @@ if nargin == 3
       x = y;
       data = err;
       dim = abs(find(size(x) == size(data))-2)+1;
-      [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
+	  if pars.UseMedian
+	     [~,~,~,y,err] = math__.mat2cb(data,dim,pars.StandardDeviations);
+	  else
+         [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
+	  end
    else
       ax = gca;
       data = [];
@@ -96,7 +104,11 @@ if nargin > 3
             lsig = [];
             return;
          end
-         [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
+		 if pars.UseMedian
+		    [~,~,~,y,err] = math__.mat2cb(data,dim,pars.StandardDeviations);
+		 else
+		   [err,y] = math__.mat2cb(data,dim,pars.StandardDeviations);
+		 end
       else
          y = err;
          err = varargin{1};
@@ -194,12 +206,17 @@ lsig = gfx__.addSignificanceLine(ax,x,data,h0,alpha,sigPars);
       %  >> pars = getParameters('ShadedErrorPlot');
       
       pars = p__.parseParameters(fname,varargin{:});
-      colFlag = ismember('Color',cellfun(@(C)char(C),varargin,'UniformOutput',false));
-      fcolFlag = ismember('FaceColor',cellfun(@(C)char(C),varargin,'UniformOutput',false));
-      if colFlag && ~fcolFlag
-         pars.FaceColor = pars.Color;
-      elseif fcolFlag && ~colFlag
-         pars.Color = pars.FaceColor;
+      if numel(varargin) > 0
+         if isstruct(varargin{1})
+            varargin(1) = [];
+         end
+         colFlag = ismember('Color',cellfun(@(C)char(C),varargin(1:3:end),'UniformOutput',false));
+         fcolFlag = ismember('FaceColor',cellfun(@(C)char(C),varargin(1:3:end),'UniformOutput',false));
+         if colFlag && ~fcolFlag
+            pars.FaceColor = pars.Color;
+         elseif fcolFlag && ~colFlag
+            pars.Color = pars.FaceColor;
+         end
       end
       pars.SignificanceLine.TestFcn = pars.TestFcn;
    end
