@@ -210,13 +210,13 @@ lsig = gfx__.addSignificanceLine(ax,x,data,h0,alpha,sigPars);
          if isstruct(varargin{1})
             varargin(1) = [];
          end
-         colFlag = ismember('Color',cellfun(@(C)char(C),varargin(1:3:end),'UniformOutput',false));
-         fcolFlag = ismember('FaceColor',cellfun(@(C)char(C),varargin(1:3:end),'UniformOutput',false));
-         if colFlag && ~fcolFlag
-            pars.FaceColor = pars.Color;
-         elseif fcolFlag && ~colFlag
-            pars.Color = pars.FaceColor;
-         end
+%          colFlag = ismember('Color',cellfun(@(C)char(C),varargin(1:3:end),'UniformOutput',false));
+%          fcolFlag = ismember('FaceColor',cellfun(@(C)char(C),varargin(1:3:end),'UniformOutput',false));
+%          if colFlag && ~fcolFlag
+%             pars.FaceColor = pars.Color;
+%          elseif fcolFlag && ~colFlag
+%             pars.Color = pars.FaceColor;
+%          end
       end
       pars.SignificanceLine.TestFcn = pars.TestFcn;
    end
